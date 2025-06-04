@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +22,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setLoading(true);
     setError('');
     
+    const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+    const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
+    
     // Valid credentials for the honeypot
     const validCredentials = [
       { username: 'admin', password: 'aiims@2024' },
@@ -44,14 +46,29 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     if (isValid) {
-      // Obfuscated logging for successful login
-      const _0x5d2a = ['login_attempt', 'success', username, new Date().toISOString()];
+      // Enhanced logging for successful login
+      const _0x5d2a = [
+        'login_attempt', 
+        'success', 
+        username, 
+        sessionId, 
+        attackerIp, 
+        new Date().toISOString()
+      ];
       console.log(_0x5d2a.join('|'));
       onLogin({ username, password });
     } else {
       setError('Invalid credentials. Please contact IT department for assistance or try again.');
-      // Log failed attempt with obfuscated data
-      const _0x7f3c = ['failed_login', username, password, navigator.userAgent, new Date().toISOString()];
+      // Enhanced failed attempt logging
+      const _0x7f3c = [
+        'failed_login', 
+        username, 
+        password, 
+        sessionId, 
+        attackerIp, 
+        navigator.userAgent, 
+        new Date().toISOString()
+      ];
       console.log(_0x7f3c.join('|'));
     }
     

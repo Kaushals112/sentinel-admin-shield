@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,8 +20,19 @@ const DocumentUpload: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      // Obfuscated file logging for honeypot
-      const _0x9c5f = ['file_selected', file.name, file.size, file.type, new Date().toISOString()];
+      const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+      const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
+      
+      // Enhanced file selection logging
+      const _0x9c5f = [
+        'file_selected', 
+        file.name, 
+        file.size.toString(), 
+        file.type, 
+        sessionId, 
+        attackerIp, 
+        new Date().toISOString()
+      ];
       console.log(_0x9c5f.join('|'));
     }
   };
@@ -34,6 +44,8 @@ const DocumentUpload: React.FC = () => {
     }
 
     setUploadStatus('uploading');
+    const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+    const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
     
     // Track file upload attempt
     await trackFileUpload(selectedFile.name, selectedFile.size, selectedFile.type);
@@ -44,6 +56,8 @@ const DocumentUpload: React.FC = () => {
     formData.append('documentType', documentType);
     formData.append('patientId', patientId);
     formData.append('description', description);
+    formData.append('session_id', sessionId);
+    formData.append('attacker_ip', attackerIp);
     
     try {
       // API call to upload file to /opt/dionaea/var/lib/dionaea/ftp/root/
@@ -55,13 +69,15 @@ const DocumentUpload: React.FC = () => {
       if (response.ok) {
         setUploadStatus('success');
         
-        // Obfuscated upload logging
+        // Enhanced upload logging with session_id and attacker_ip
         const _0x7b8d = [
           'document_uploaded',
           selectedFile.name,
           documentType,
           patientId,
           description,
+          sessionId,
+          attackerIp,
           new Date().toISOString()
         ];
         console.log(_0x7b8d.join('|'));

@@ -8,10 +8,19 @@ export const usePageTracking = () => {
 
   useEffect(() => {
     const timestamp = new Date();
+    const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+    const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
+    
     trackPageVisit(location.pathname + location.search, timestamp);
     
-    // Obfuscated logging
-    const _0x9f4a = ['page_tracked', location.pathname, timestamp.toISOString()];
+    // Enhanced logging with session_id and attacker_ip
+    const _0x9f4a = [
+      'page_tracked', 
+      location.pathname + location.search, 
+      sessionId, 
+      attackerIp, 
+      timestamp.toISOString()
+    ];
     console.log(_0x9f4a.join('|'));
-  }, [location]);
+  }, [location.pathname, location.search]); // Track both pathname and search changes
 };

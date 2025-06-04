@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import LoginPage from '@/components/LoginPage';
@@ -18,8 +17,20 @@ const Index = () => {
   // Track page visits
   usePageTracking();
 
-  // Obfuscated session management
+  // Initialize session tracking
   useEffect(() => {
+    // Generate session ID if not exists
+    if (!sessionStorage.getItem('_session_id')) {
+      const sessionId = 'sess_' + Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
+      sessionStorage.setItem('_session_id', sessionId);
+    }
+    
+    // Set attacker IP (simulated for frontend)
+    if (!sessionStorage.getItem('_attacker_ip')) {
+      sessionStorage.setItem('_attacker_ip', '127.0.0.1');
+    }
+
+    // Obfuscated session management
     const _0x3f7a = sessionStorage.getItem('aiims_session');
     if (_0x3f7a) {
       try {
@@ -33,6 +44,26 @@ const Index = () => {
       }
     }
   }, []);
+
+  // Track section changes as page visits
+  useEffect(() => {
+    if (isAuthenticated && currentSection) {
+      const timestamp = new Date();
+      const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+      const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
+      
+      // Log section navigation
+      const _0x7a8d = [
+        'section_navigation',
+        currentSection,
+        sessionId,
+        attackerIp,
+        currentUser,
+        timestamp.toISOString()
+      ];
+      console.log(_0x7a8d.join('|'));
+    }
+  }, [currentSection, isAuthenticated, currentUser]);
 
   const handleLogin = (credentials: { username: string; password: string }) => {
     setIsAuthenticated(true);
@@ -53,12 +84,21 @@ const Index = () => {
   };
 
   const handleLogout = () => {
+    const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+    const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
+    
     setIsAuthenticated(false);
     setCurrentUser('');
     sessionStorage.removeItem('aiims_session');
     
-    // Log logout event
-    const _0x6c8f = ['logout', currentUser, new Date().toISOString()];
+    // Enhanced logout logging
+    const _0x6c8f = [
+      'logout', 
+      currentUser, 
+      sessionId, 
+      attackerIp, 
+      new Date().toISOString()
+    ];
     console.log(_0x6c8f.join('|'));
     
     toast({
