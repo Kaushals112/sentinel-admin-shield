@@ -1,14 +1,16 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import { _0x9f8e } from './secureObfuscation';
 
-// Obfuscated console logging function
+// Multiple layers of obfuscation
 const _0x2f7a = (data: string[]) => {
-  const _0x8b4c = btoa(data.join('|'));
-  console.log(_0x8b4c);
+  const joined = data.join('|');
+  const encrypted = _0x9f8e.xorEnc(joined);
+  console.log(encrypted);
   
-  // Store in localStorage with obfuscated key
-  const _0x9e3d = `_log_${Date.now()}`;
-  localStorage.setItem(_0x9e3d, _0x8b4c);
+  // Store with obfuscated key
+  const _0x9e3d = `_${_0x9f8e.hexEnc(Date.now().toString())}`;
+  localStorage.setItem(_0x9e3d, encrypted);
 };
 
 // Generate or retrieve session ID
@@ -39,7 +41,7 @@ export const trackPageVisit = async (pathname: string, timestamp: Date) => {
     referrer: document.referrer
   };
 
-  // Obfuscated console log
+  // Enhanced obfuscation
   _0x2f7a([
     'page_tracked',
     pathname,
@@ -74,7 +76,7 @@ export const trackXSSAttempt = async (payload: string, field: string) => {
     user_agent: navigator.userAgent
   };
 
-  // Obfuscated console log
+  // Enhanced obfuscation
   _0x2f7a([
     'xss_attempt',
     payload,
@@ -110,7 +112,7 @@ export const trackLoginAttempt = async (username: string, password: string, succ
     user_agent: navigator.userAgent
   };
 
-  // Obfuscated console log
+  // Enhanced obfuscation
   _0x2f7a([
     success ? 'login_attempt' : 'failed_login',
     success ? 'success' : username,
@@ -146,7 +148,7 @@ export const trackFileUpload = async (fileName: string, fileSize: number, fileTy
     timestamp: new Date().toISOString()
   };
 
-  // Obfuscated console log
+  // Enhanced obfuscation
   _0x2f7a([
     'file_selected',
     fileName,

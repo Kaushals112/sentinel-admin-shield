@@ -28,11 +28,11 @@ import {
 } from 'lucide-react';
 
 interface AdminSidebarProps {
-  currentSection: string;
+  activeSection: string;
   onSectionChange: (section: string) => void;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentSection, onSectionChange }) => {
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeSection, onSectionChange }) => {
   const menuItems = [
     {
       title: "Dashboard",
@@ -107,7 +107,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentSection, onSectionCh
                 <SidebarMenuItem key={item.section}>
                   <SidebarMenuButton 
                     onClick={() => onSectionChange(item.section)}
-                    isActive={currentSection === item.section}
+                    isActive={activeSection === item.section}
                     className="w-full justify-start"
                   >
                     <item.icon className="h-4 w-4" />
@@ -127,7 +127,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentSection, onSectionCh
                 <SidebarMenuItem key={item.section}>
                   <SidebarMenuButton 
                     onClick={() => onSectionChange(item.section)}
-                    isActive={currentSection === item.section}
+                    isActive={activeSection === item.section}
                     className="w-full justify-start"
                   >
                     <item.icon className="h-4 w-4" />
