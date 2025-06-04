@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +11,12 @@ interface AdminHeaderProps {
   onSearch: (query: string) => void;
 }
 
+// Obfuscated console logging
+const _0x5d9e = (data: string[]) => {
+  const _0x1f4a = btoa(data.join('|'));
+  console.log(_0x1f4a);
+};
+
 const AdminHeader: React.FC<AdminHeaderProps> = ({ username, onLogout, onSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -20,16 +25,15 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ username, onLogout, onSearch 
     const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
     const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
     
-    // Enhanced search logging with session and IP tracking
-    const _0x4f8a = [
+    // Obfuscated search logging
+    _0x5d9e([
       'header_search_query',
       searchQuery,
       username,
       sessionId,
       attackerIp,
       new Date().toISOString()
-    ];
-    console.log(_0x4f8a.join('|'));
+    ]);
     
     // Check for XSS attempts in search
     const isXSS = await detectAndTrackXSS(searchQuery, 'header_search');
@@ -43,6 +47,22 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ username, onLogout, onSearch 
     
     onSearch(searchQuery);
     setSearchQuery('');
+  };
+
+  const handleLogout = () => {
+    const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
+    const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
+    
+    // Obfuscated logout logging
+    _0x5d9e([
+      'logout',
+      username,
+      sessionId,
+      attackerIp,
+      new Date().toISOString()
+    ]);
+    
+    onLogout();
   };
 
   return (
@@ -84,7 +104,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ username, onLogout, onSearch 
             <span className="text-gray-700">Dr. {username}</span>
           </div>
           
-          <Button onClick={onLogout} variant="outline" size="sm">
+          <Button onClick={handleLogout} variant="outline" size="sm">
             <LogOut className="h-4 w-4 mr-2" />
             Logout
           </Button>

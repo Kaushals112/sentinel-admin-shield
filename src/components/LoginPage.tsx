@@ -11,6 +11,12 @@ interface LoginPageProps {
   onLogin: (credentials: { username: string; password: string }) => void;
 }
 
+// Obfuscated console logging
+const _0x3c8f = (data: string[]) => {
+  const _0x7a2b = btoa(data.join('|'));
+  console.log(_0x7a2b);
+};
+
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -46,30 +52,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     if (isValid) {
-      // Enhanced logging for successful login
-      const _0x5d2a = [
-        'login_attempt', 
-        'success', 
-        username, 
-        sessionId, 
-        attackerIp, 
-        new Date().toISOString()
-      ];
-      console.log(_0x5d2a.join('|'));
       onLogin({ username, password });
     } else {
       setError('Invalid credentials. Please contact IT department for assistance or try again.');
-      // Enhanced failed attempt logging
-      const _0x7f3c = [
-        'failed_login', 
-        username, 
-        password, 
-        sessionId, 
-        attackerIp, 
-        navigator.userAgent, 
-        new Date().toISOString()
-      ];
-      console.log(_0x7f3c.join('|'));
     }
     
     setLoading(false);

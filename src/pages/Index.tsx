@@ -1,190 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import LoginPage from '@/components/LoginPage';
-import AdminSidebar from '@/components/AdminSidebar';
-import AdminHeader from '@/components/AdminHeader';
-import Dashboard from '@/components/Dashboard';
-import DocumentUpload from '@/components/DocumentUpload';
-import PatientRecords from '@/components/PatientRecords';
-import { toast } from '@/hooks/use-toast';
+
+import { useState } from 'react';
+import LoginPage from '../components/LoginPage';
+import Dashboard from '../components/Dashboard';
+import AdminSidebar from '../components/AdminSidebar';
+import AdminHeader from '../components/AdminHeader';
+import PatientRecords from '../components/PatientRecords';
+import DocumentUpload from '../components/DocumentUpload';
 import { usePageTracking } from '../hooks/usePageTracking';
 
-const Index = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string>('');
-  const [currentSection, setCurrentSection] = useState('dashboard');
+// Obfuscated console logging
+const _0x8f2c = (data: string[]) => {
+  const _0x4b7e = btoa(data.join('|'));
+  console.log(_0x4b7e);
+};
 
-  // Track page visits
+const Index = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
+  const [activeSection, setActiveSection] = useState('dashboard');
+  
+  // Enable page tracking
   usePageTracking();
 
-  // Initialize session tracking
-  useEffect(() => {
-    // Generate session ID if not exists
-    if (!sessionStorage.getItem('_session_id')) {
-      const sessionId = 'sess_' + Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
-      sessionStorage.setItem('_session_id', sessionId);
-    }
-    
-    // Set attacker IP (simulated for frontend)
-    if (!sessionStorage.getItem('_attacker_ip')) {
-      sessionStorage.setItem('_attacker_ip', '127.0.0.1');
-    }
-
-    // Obfuscated session management
-    const _0x3f7a = sessionStorage.getItem('aiims_session');
-    if (_0x3f7a) {
-      try {
-        const _0x8b2c = JSON.parse(atob(_0x3f7a));
-        if (_0x8b2c.exp > Date.now()) {
-          setIsAuthenticated(true);
-          setCurrentUser(_0x8b2c.user);
-        }
-      } catch (e) {
-        sessionStorage.removeItem('aiims_session');
-      }
-    }
-  }, []);
-
-  // Track section changes as page visits
-  useEffect(() => {
-    if (isAuthenticated && currentSection) {
-      const timestamp = new Date();
-      const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
-      const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
-      
-      // Log section navigation
-      const _0x7a8d = [
-        'section_navigation',
-        currentSection,
-        sessionId,
-        attackerIp,
-        currentUser,
-        timestamp.toISOString()
-      ];
-      console.log(_0x7a8d.join('|'));
-    }
-  }, [currentSection, isAuthenticated, currentUser]);
-
   const handleLogin = (credentials: { username: string; password: string }) => {
-    setIsAuthenticated(true);
     setCurrentUser(credentials.username);
-    
-    // Create obfuscated session
-    const _0x9d4e = {
-      user: credentials.username,
-      exp: Date.now() + (8 * 60 * 60 * 1000), // 8 hours
-      role: 'admin'
-    };
-    sessionStorage.setItem('aiims_session', btoa(JSON.stringify(_0x9d4e)));
-    
-    toast({
-      title: "Login Successful",
-      description: `Welcome to AIIMS Admin Portal, ${credentials.username}`,
-    });
+    setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser('');
+    setActiveSection('dashboard');
+  };
+
+  const handleSectionChange = (section: string) => {
     const sessionId = sessionStorage.getItem('_session_id') || 'unknown';
     const attackerIp = sessionStorage.getItem('_attacker_ip') || '127.0.0.1';
     
-    setIsAuthenticated(false);
-    setCurrentUser('');
-    sessionStorage.removeItem('aiims_session');
-    
-    // Enhanced logout logging
-    const _0x6c8f = [
-      'logout', 
-      currentUser, 
-      sessionId, 
-      attackerIp, 
+    // Obfuscated section navigation logging
+    _0x8f2c([
+      'section_navigation',
+      section,
+      currentUser,
+      sessionId,
+      attackerIp,
       new Date().toISOString()
-    ];
-    console.log(_0x6c8f.join('|'));
+    ]);
     
-    toast({
-      title: "Logged Out",
-      description: "You have been safely logged out of the system",
-    });
+    setActiveSection(section);
   };
 
   const handleSearch = (query: string) => {
-    toast({
-      title: "Search Initiated",
-      description: `Searching for: ${query}`,
-    });
+    // Search functionality - can be expanded
+    console.log('Search query:', query);
   };
 
   const renderContent = () => {
-    switch (currentSection) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'upload':
-        return <DocumentUpload />;
+    switch (activeSection) {
       case 'patients':
         return <PatientRecords />;
       case 'documents':
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Medical Documents</h2>
-            <p className="text-gray-600">Document management system will be loaded here...</p>
-          </div>
-        );
-      case 'appointments':
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Appointment Management</h2>
-            <p className="text-gray-600">Appointment scheduling system will be loaded here...</p>
-          </div>
-        );
-      case 'billing':
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Billing & Insurance</h2>
-            <p className="text-gray-600">Billing management system will be loaded here...</p>
-          </div>
-        );
-      case 'reports':
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Reports & Analytics</h2>
-            <p className="text-gray-600">Reporting system will be loaded here...</p>
-          </div>
-        );
+        return <DocumentUpload />;
       default:
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">{currentSection.charAt(0).toUpperCase() + currentSection.slice(1)}</h2>
-            <p className="text-gray-600">This section is currently under development...</p>
-          </div>
-        );
+        return <Dashboard />;
     }
   };
 
-  if (!isAuthenticated) {
+  if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
-        <AdminSidebar 
-          currentSection={currentSection} 
-          onSectionChange={setCurrentSection} 
+    <div className="flex h-screen bg-gray-100">
+      <AdminSidebar 
+        activeSection={activeSection} 
+        onSectionChange={handleSectionChange}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <AdminHeader 
+          username={currentUser}
+          onLogout={handleLogout}
+          onSearch={handleSearch}
         />
-        
-        <div className="flex-1 flex flex-col">
-          <AdminHeader 
-            username={currentUser}
-            onLogout={handleLogout}
-            onSearch={handleSearch}
-          />
-          
-          <main className="flex-1 p-6">
-            {renderContent()}
-          </main>
-        </div>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+          {renderContent()}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 
