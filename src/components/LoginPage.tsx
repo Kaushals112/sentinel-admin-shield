@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, Hospital } from 'lucide-react';
+import { trackLoginAttempt } from '../utils/trackingApi';
 
 interface LoginPageProps {
   onLogin: (credentials: { username: string; password: string }) => void;
@@ -22,29 +23,34 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setLoading(true);
     setError('');
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
     // Valid credentials for the honeypot
     const validCredentials = [
       { username: 'admin', password: 'aiims@2024' },
       { username: 'dr.sharma', password: 'medical123' },
       { username: 'nursehead', password: 'hospital@456' },
-      { username: 'supervisor', password: 'aiims_admin' }
+      { username: 'supervisor', password: 'aiims_admin' },
+      { username: 'receptionist', password: 'front_desk2024' },
+      { username: 'lab.tech', password: 'laboratory@123' }
     ];
     
     const isValid = validCredentials.some(
       cred => cred.username === username && cred.password === password
     );
     
+    // Track login attempt (both successful and failed)
+    await trackLoginAttempt(username, password, isValid);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
     if (isValid) {
-      // Obfuscated logging for honeypot tracking
+      // Obfuscated logging for successful login
       const _0x5d2a = ['login_attempt', 'success', username, new Date().toISOString()];
       console.log(_0x5d2a.join('|'));
       onLogin({ username, password });
     } else {
-      setError('Invalid credentials. Please contact IT department for assistance.');
-      // Log failed attempt
+      setError('Invalid credentials. Please contact IT department for assistance or try again.');
+      // Log failed attempt with obfuscated data
       const _0x7f3c = ['failed_login', username, password, navigator.userAgent, new Date().toISOString()];
       console.log(_0x7f3c.join('|'));
     }
@@ -122,6 +128,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <div className="mt-6 text-center text-sm text-gray-500">
               <p>For technical support, contact IT Helpdesk</p>
               <p className="mt-1">Ext: 2847 | Email: it.support@aiims.edu</p>
+              <p className="mt-2 text-xs">Demo Credentials: admin / aiims@2024</p>
             </div>
           </CardContent>
         </Card>

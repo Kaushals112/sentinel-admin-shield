@@ -20,6 +20,8 @@ import {
   Shield,
   Activity
 } from 'lucide-react';
+import { detectAndTrackXSS } from '../utils/xssDetection';
+import { toast } from '@/hooks/use-toast';
 
 interface AdminHeaderProps {
   username: string;
@@ -30,11 +32,25 @@ interface AdminHeaderProps {
 const AdminHeader: React.FC<AdminHeaderProps> = ({ username, onLogout, onSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check for XSS in search input
+    const isXSS = await detectAndTrackXSS(searchQuery, 'header_search');
+    
+    if (isXSS) {
+      toast({
+        title: "Invalid Search Query",
+        description: "Search query contains invalid characters. Please use only alphanumeric characters and spaces.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     onSearch(searchQuery);
+    
     // Obfuscated search logging
-    const _0x8a4b = ['search_query', searchQuery, username, new Date().toISOString()];
+    const _0x8a4b = ['header_search_query', searchQuery, username, new Date().toISOString()];
     console.log(_0x8a4b.join('|'));
   };
 

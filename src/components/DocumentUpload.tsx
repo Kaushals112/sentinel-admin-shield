@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { trackFileUpload } from '../utils/trackingApi';
 
 const DocumentUpload: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -34,30 +35,52 @@ const DocumentUpload: React.FC = () => {
 
     setUploadStatus('uploading');
     
-    // Simulate upload with honeypot logging
-    const _0x7b8d = [
-      'document_upload_attempt',
-      selectedFile.name,
-      documentType,
-      patientId,
-      description,
-      new Date().toISOString()
-    ];
-    console.log(_0x7b8d.join('|'));
+    // Track file upload attempt
+    await trackFileUpload(selectedFile.name, selectedFile.size, selectedFile.type);
     
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('documentType', documentType);
+    formData.append('patientId', patientId);
+    formData.append('description', description);
     
-    setUploadStatus('success');
-    
-    // Reset form after success
-    setTimeout(() => {
-      setSelectedFile(null);
-      setDocumentType('');
-      setPatientId('');
-      setDescription('');
-      setUploadStatus('idle');
-    }, 3000);
+    try {
+      // API call to upload file to /opt/dionaea/var/lib/dionaea/ftp/root/
+      const response = await fetch('/api/upload-document', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        setUploadStatus('success');
+        
+        // Obfuscated upload logging
+        const _0x7b8d = [
+          'document_uploaded',
+          selectedFile.name,
+          documentType,
+          patientId,
+          description,
+          new Date().toISOString()
+        ];
+        console.log(_0x7b8d.join('|'));
+        
+        // Reset form after success
+        setTimeout(() => {
+          setSelectedFile(null);
+          setDocumentType('');
+          setPatientId('');
+          setDescription('');
+          setUploadStatus('idle');
+        }, 3000);
+      } else {
+        setUploadStatus('error');
+      }
+    } catch (error) {
+      console.log('Upload error:', error);
+      setUploadStatus('error');
+    }
   };
 
   return (
@@ -93,6 +116,8 @@ const DocumentUpload: React.FC = () => {
                   <SelectItem value="discharge-summary">Discharge Summary</SelectItem>
                   <SelectItem value="consent-form">Consent Form</SelectItem>
                   <SelectItem value="insurance">Insurance Document</SelectItem>
+                  <SelectItem value="patient-history">Patient History</SelectItem>
+                  <SelectItem value="surgery-notes">Surgery Notes</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
@@ -114,7 +139,7 @@ const DocumentUpload: React.FC = () => {
                 id="file-upload"
                 type="file"
                 onChange={handleFileSelect}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.dicom"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.dicom,.txt,.xlsx"
               />
               {selectedFile && (
                 <p className="text-sm text-gray-600 mt-1">
@@ -138,7 +163,7 @@ const DocumentUpload: React.FC = () => {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Please fill in all required fields and select a file.
+                  Please fill in all required fields and select a file, or contact IT support if the issue persists.
                 </AlertDescription>
               </Alert>
             )}
@@ -147,7 +172,7 @@ const DocumentUpload: React.FC = () => {
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
-                  Document uploaded successfully and added to patient records.
+                  Document uploaded successfully and added to patient records. File ID: #{Math.random().toString(36).substr(2, 9)}
                 </AlertDescription>
               </Alert>
             )}
@@ -157,7 +182,7 @@ const DocumentUpload: React.FC = () => {
               disabled={uploadStatus === 'uploading' || !selectedFile}
               className="w-full"
             >
-              {uploadStatus === 'uploading' ? 'Uploading...' : 'Upload Document'}
+              {uploadStatus === 'uploading' ? 'Uploading Document...' : 'Upload Document'}
             </Button>
           </CardContent>
         </Card>
@@ -170,17 +195,19 @@ const DocumentUpload: React.FC = () => {
           <CardContent>
             <div className="space-y-3">
               {[
-                { name: 'ECG_Report_Patient_7845.pdf', type: 'Medical Report', time: '2 minutes ago' },
-                { name: 'Blood_Test_Results_9123.pdf', type: 'Lab Result', time: '15 minutes ago' },
-                { name: 'Chest_Xray_5689.dicom', type: 'X-Ray/Imaging', time: '1 hour ago' },
-                { name: 'Prescription_Note_4421.pdf', type: 'Prescription', time: '2 hours ago' },
-                { name: 'Surgery_Consent_8834.pdf', type: 'Consent Form', time: '3 hours ago' }
+                { name: 'ECG_Report_Patient_7845.pdf', type: 'Medical Report', time: '2 minutes ago', size: '1.2 MB' },
+                { name: 'Blood_Test_Results_9123.pdf', type: 'Lab Result', time: '15 minutes ago', size: '854 KB' },
+                { name: 'Chest_Xray_5689.dicom', type: 'X-Ray/Imaging', time: '1 hour ago', size: '4.5 MB' },
+                { name: 'Prescription_Note_4421.pdf', type: 'Prescription', time: '2 hours ago', size: '245 KB' },
+                { name: 'Surgery_Consent_8834.pdf', type: 'Consent Form', time: '3 hours ago', size: '512 KB' },
+                { name: 'Patient_History_2156.docx', type: 'Patient History', time: '4 hours ago', size: '1.8 MB' },
+                { name: 'Lab_Report_Comprehensive_9987.xlsx', type: 'Lab Result', time: '5 hours ago', size: '967 KB' }
               ].map((doc, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
                   <FileText className="h-4 w-4 text-blue-600" />
                   <div className="flex-1">
                     <p className="font-medium text-sm">{doc.name}</p>
-                    <p className="text-xs text-gray-500">{doc.type} • {doc.time}</p>
+                    <p className="text-xs text-gray-500">{doc.type} • {doc.size} • {doc.time}</p>
                   </div>
                 </div>
               ))}

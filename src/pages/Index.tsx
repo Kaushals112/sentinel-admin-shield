@@ -6,12 +6,17 @@ import AdminSidebar from '@/components/AdminSidebar';
 import AdminHeader from '@/components/AdminHeader';
 import Dashboard from '@/components/Dashboard';
 import DocumentUpload from '@/components/DocumentUpload';
+import PatientRecords from '@/components/PatientRecords';
 import { toast } from '@/hooks/use-toast';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<string>('');
   const [currentSection, setCurrentSection] = useState('dashboard');
+
+  // Track page visits
+  usePageTracking();
 
   // Obfuscated session management
   useEffect(() => {
@@ -76,17 +81,33 @@ const Index = () => {
       case 'upload':
         return <DocumentUpload />;
       case 'patients':
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Patient Records</h2>
-            <p className="text-gray-600">Patient management system will be loaded here...</p>
-          </div>
-        );
+        return <PatientRecords />;
       case 'documents':
         return (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Medical Documents</h2>
             <p className="text-gray-600">Document management system will be loaded here...</p>
+          </div>
+        );
+      case 'appointments':
+        return (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Appointment Management</h2>
+            <p className="text-gray-600">Appointment scheduling system will be loaded here...</p>
+          </div>
+        );
+      case 'billing':
+        return (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Billing & Insurance</h2>
+            <p className="text-gray-600">Billing management system will be loaded here...</p>
+          </div>
+        );
+      case 'reports':
+        return (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Reports & Analytics</h2>
+            <p className="text-gray-600">Reporting system will be loaded here...</p>
           </div>
         );
       default:
